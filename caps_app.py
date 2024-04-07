@@ -36,12 +36,12 @@ def main():
 
     # Input form
     st.sidebar.header('Input Features')
+    car_maker = st.sidebar.selectbox('Car Maker', df['car_maker'].unique())
+    car_model_options = df[df['car_maker'] == car_maker]['car_model'].unique()
     fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
     seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
     transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
     owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'])
-    car_maker = st.sidebar.text_input('Car Maker', '')
-    car_model = st.sidebar.text_input('Car Model', '')
     year = st.sidebar.number_input('Year', min_value=1980, max_value=2023)
     km_driven = st.sidebar.number_input('Kilometers Driven', min_value=0)
 
