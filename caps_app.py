@@ -6,11 +6,8 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.pipeline import Pipeline
 
-# Load the dataset
-df = pd.read_csv("CAR DETAILS.csv")
-
 # Load the trained model
-with open('best_model1.pkl', 'rb') as file:
+with open('best_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Function to preprocess input data
@@ -39,26 +36,15 @@ def main():
 
     # Input form
     st.sidebar.header('Input Features')
+    name = st.selectbox("Select Car Name", options = df["name"].unique())
+      st.write(name)
+      split = name.split(" ")
+      car_maker = split[0]
+      car_model = split[1]
     fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
     seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
     transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
     owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'])
-    
-    # Dropdown list for car_maker
-    car_maker = st.sidebar.selectbox('Car Maker', df['car_maker'].unique())
-
-    # If user selects 'Other', allow custom input
-    if car_maker == 'Other':
-        car_maker = st.sidebar.text_input('Enter Car Maker', '')
-
-    # Dropdown list for car_model based on selected car_maker
-    car_model_options = df[df['car_maker'] == car_maker]['car_model'].unique()
-    car_model = st.sidebar.selectbox('Car Model', car_model_options)
-
-    # If user selects 'Other', allow custom input
-    if car_model == 'Other':
-        car_model = st.sidebar.text_input('Enter Car Model', '')
-
     year = st.sidebar.number_input('Year', min_value=1980, max_value=2023)
     km_driven = st.sidebar.number_input('Kilometers Driven', min_value=0)
 
