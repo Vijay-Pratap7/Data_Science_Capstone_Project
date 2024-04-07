@@ -37,10 +37,10 @@ def main():
     # Input form
     st.sidebar.header('Input Features')
     name = st.selectbox("Select Car Name", options = df["name"].unique())
-      st.write(name)
-      split = name.split(" ")
-      car_maker = split[0]
-      car_model = split[1]
+    st.write(name)
+    plit = name.split(" ")
+    car_maker = split[0]
+    car_model = split[1]
     fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
     seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
     transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
