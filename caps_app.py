@@ -36,7 +36,7 @@ def main():
 
     # Input form
     st.sidebar.header('Input Features')
-    name = st.selectbox("Select Car Name", options = df["name"].unique())
+    name = st.selectbox("Select Car Name", options = data["name"].unique())
     st.write(name)
     plit = name.split(" ")
     car_maker = split[0]
