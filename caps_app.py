@@ -2,9 +2,6 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-from sklearn.preprocessing import LabelEncoder, OneHotEncoder
-from sklearn.compose import ColumnTransformer
-from sklearn.pipeline import Pipeline
 
 # Load the trained model
 with open('best_model1.pkl', 'rb') as file:
@@ -56,6 +53,14 @@ def main():
             'year': [year],
             'km_driven': [km_driven]
         })
+
+        # Convert categorical variables to dummy variables
+        categorical_cols = ['fuel', 'seller_type', 'transmission', 'owner', 'car_maker', 'car_model']
+        for col in categorical_cols:
+            if col in df.columns:
+                dummy_cols = pd.get_dummies(input_data[col], prefix=col, drop_first=True)
+                input_data = pd.concat([input_data, dummy_cols], axis=1)
+                input_data.drop(col, axis=1, inplace=True)
 
         # Predict selling price
         if st.sidebar.button('Predict'):
