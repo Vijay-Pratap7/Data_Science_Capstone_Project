@@ -10,7 +10,7 @@ from sklearn.pipeline import Pipeline
 df = pd.read_csv("CAR DETAILS.csv")
 
 # Load the trained model
-with open('best_model.pkl', 'rb') as file:
+with open('best_model1.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Function to preprocess input data
