@@ -9,7 +9,11 @@ from sklearn.pipeline import Pipeline
 # Load the trained model
 with open('best_model1.pkl', 'rb') as file:
     model = pickle.load(file)
-
+# upload data
+data = st.file_uploader("Upload a Dataset", type = ["csv"])
+if data is not None:
+      data = pd.read_csv(data)
+      st.dataframe(data.head())
 # Function to preprocess input data
 def preprocess_input(data):
     # Define categorical columns
