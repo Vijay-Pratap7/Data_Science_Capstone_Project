@@ -4,7 +4,7 @@ import numpy as np
 import pickle
 
 # Load the trained model
-with open('best_model1.pkl', 'rb') as file:
+with open('model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Streamlit app
@@ -21,14 +21,7 @@ def main():
 
         # Input form
         st.sidebar.header('Input Features')
-        fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
-        seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
-        transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
-        owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'])
-        year = st.sidebar.number_input('Year', min_value=1980, max_value=2023)
-        km_driven = st.sidebar.number_input('Kilometers Driven', min_value=0)
-
-        # Dropdown list for car_maker
+         # Dropdown list for car_maker
         if 'car_maker' in df.columns:
             car_maker_options = df['car_maker'].unique()
             car_maker = st.sidebar.selectbox('Car Maker', [''] + list(car_maker_options))
@@ -42,6 +35,14 @@ def main():
         else:
             car_model = ''
 
+        fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
+        seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
+        transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
+        owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'])
+        year = st.sidebar.number_input('Year', min_value=1980, max_value=2023)
+        km_driven = st.sidebar.number_input('Kilometers Driven', min_value=0)
+
+    
         # Prepare input data
         input_data = pd.DataFrame({
             'fuel': [fuel],
