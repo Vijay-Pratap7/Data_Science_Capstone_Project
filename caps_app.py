@@ -57,13 +57,6 @@ def load_model():
         model = pickle.load(file)
     return model
 
-# Function to predict on sample data
-def predict_sample_data(model, df_sample):
-    X_sample = df_sample.drop(target_col, axis=1)
-    y_sample = df_sample[target_col]
-    y_pred_sample = model.predict(X_sample)
-    return y_sample, y_pred_sample
-
 # Main function
 def main():
     st.title("Car Price Prediction")
