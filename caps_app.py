@@ -30,17 +30,20 @@ def predict_price(car_data):
 def main():
     st.title("Used Car Price Prediction")
     
+    # Read the data
+    df = pd.read_csv("CAR DETAILS.csv")
+    
     # Input form
     st.sidebar.header("Enter Car Details")
     
-    name = st.sidebar.text_input("Car Name")
     year = st.sidebar.number_input("Year of Manufacture", min_value=1900, max_value=2023, step=1)
     km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0, step=1)
     fuel = st.sidebar.selectbox("Fuel Type", ["Diesel", "Petrol", "CNG", "LPG"])
     seller_type = st.sidebar.selectbox("Seller Type", ["Individual", "Dealer", "Trustmark Dealer"])
     transmission = st.sidebar.selectbox("Transmission Type", ["Manual", "Automatic"])
     owner = st.sidebar.selectbox("Owner Type", ["First Owner", "Second Owner", "Third Owner or More"])
-   
+    car_names = df["name"].unique()
+    selected_car_name = st.sidebar.selectbox("Car Name", car_names)
     
     car_data = pd.DataFrame({
         "year": [year],
@@ -49,7 +52,7 @@ def main():
         "seller_type_" + seller_type: [1],
         "transmission_" + transmission: [1],
         "owner_" + owner: [1],
-        "name": [name]
+        "name": [selected_car_name]
     })
     
     if st.sidebar.button("Predict"):
