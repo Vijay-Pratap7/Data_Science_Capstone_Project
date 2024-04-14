@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 # Load the saved model
-with open('best_model.pkl', 'rb') as file:
+with open('rfmodel.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Function to predict car price
