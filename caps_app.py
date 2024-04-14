@@ -1,68 +1,58 @@
 import streamlit as st
 import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestRegressor
+import numpy as np
 import pickle
 
-# Function to load data
-@st.cache
-def load_data(file):
-    df = pd.read_csv(file)
-    return df
+# Load the trained model
+with open('best_model.pkl', 'rb') as file:
+    model = pickle.load(file)
 
-# Function to preprocess data
-def preprocess_data(df):
-    df.drop_duplicates(inplace=True)
-    if 'name' in df.columns:
-        df["car_age"] = 2023 - df["year"]
-        name = df["name"].str.split(" ", expand=True)
-        df["car_maker"] = name[0]
-        df["car_model"] = name[1]
-        df.drop(["name"], axis=1, inplace=True)
-    df = pd.get_dummies(df, drop_first=True)
-    return df
+# Function to preprocess input data
+def preprocess_input(data):
+    # Feature engineering
+    data["car_age"] = 2023 - data["year"]
+    name = data["name"].str.split(" ", expand=True)
+    data["car_maker"] = name[0]
+    data["car_model"] = name[1]
+    data.drop(["name"], axis=1, inplace=True)
+    
+    # Encoding categorical variables
+    data = pd.get_dummies(data, drop_first=True)
+    return data
 
-# Function to train model
-def train_model(df, target_col):
-    X = df.drop(target_col, axis=1)
-    y = df[target_col]
-    model = RandomForestRegressor()
-    model.fit(X, y)
-    return model
-
-# Function to predict price
-def predict_price(model, features):
-    prediction = model.predict(features)
+# Function to predict car price
+def predict_price(car_data):
+    car_data_processed = preprocess_input(car_data)
+    prediction = model.predict(car_data_processed)
     return prediction
 
-# Main function
+# Streamlit app
 def main():
-    st.title("Car Price Prediction")
-
-    # Upload file
-    file = st.file_uploader("Upload CSV file", type=["csv"])
-    if file is not None:
-        df = load_data(file)
-        df = preprocess_data(df)
-
-        # Select target variable
-        st.subheader("Select target variable")
-        target_col = st.selectbox("Select target variable", df.columns)
-
-        # Train model
-        model = train_model(df, target_col)
-
-        # Input features
-        st.subheader("Enter Car Details to Predict Price")
-        features = {}
-        for col in df.columns:
-            if col != target_col:
-                features[col] = st.number_input(f"Enter {col}", min_value=float(df[col].min()), max_value=float(df[col].max()), value=float(df[col].mean()))
-
-        if st.button("Predict"):
-            input_features = pd.DataFrame(features, index=[0])
-            prediction = predict_price(model, input_features)
-            st.success(f"Predicted Selling Price: {prediction[0]}")
+    st.title("Used Car Price Prediction")
+    
+    # Input form
+    st.sidebar.header("Enter Car Details")
+    
+    year = st.sidebar.number_input("Year of Manufacture", min_value=1900, max_value=2023, step=1)
+    km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0, step=1)
+    fuel = st.sidebar.selectbox("Fuel Type", ["Diesel", "Petrol", "CNG", "LPG"])
+    seller_type = st.sidebar.selectbox("Seller Type", ["Individual", "Dealer", "Trustmark Dealer"])
+    transmission = st.sidebar.selectbox("Transmission Type", ["Manual", "Automatic"])
+    owner = st.sidebar.selectbox("Owner Type", ["First Owner", "Second Owner", "Third Owner or More"])
+    
+    car_data = pd.DataFrame({
+        "year": [year],
+        "km_driven": [km_driven],
+        "fuel_" + fuel: [1],
+        "seller_type_" + seller_type: [1],
+        "transmission_" + transmission: [1],
+        "owner_" + owner: [1]
+    })
+    
+    if st.sidebar.button("Predict"):
+        # Predict car price
+        prediction = predict_price(car_data)
+        st.sidebar.success(f"The estimated selling price of the car is ₹{prediction[0]}")
 
 if __name__ == "__main__":
     main()
