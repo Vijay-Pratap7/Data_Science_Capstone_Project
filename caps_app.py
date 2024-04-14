@@ -1,73 +1,49 @@
 import streamlit as st
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pickle
 
-# Load the trained model
+# Load the pre-trained Random Forest model
 with open('rfmodel.pkl', 'rb') as file:
     model = pickle.load(file)
 
+# Load the DataFrame with car details
+df = pd.read_csv("CAR DETAILS.csv")
+
 # Streamlit app
 def main():
-    st.title('Car Selling Price Prediction')
+    st.title('Used Car Price Prediction')
 
-    # Upload CSV file
-    st.sidebar.header('Upload Dataset')
-    uploaded_file = st.sidebar.file_uploader("Upload a CSV file", type=["csv"])
+    # Create a selectbox for car names
+    car_name = st.selectbox('Car Name', df['name'])
 
-    if uploaded_file is not None:
-        # Read the uploaded CSV file
-        df = pd.read_csv(uploaded_file)
+    # Get car details based on the selected car name
+    car_details = df[df['name'] == car_name].iloc[0]
 
-        # Input form
-        st.sidebar.header('Input Features')
-         # Dropdown list for car_maker
-        if 'car_maker' in df.columns:
-            car_maker_options = df['car_maker'].unique()
-            car_maker = st.sidebar.selectbox('Car Maker', [''] + list(car_maker_options))
-        else:
-            car_maker = ''
+    # Input fields for user to enter other car details
+    car_age = st.slider('Car Age', min_value=1, max_value=20, value=5)
+    km_driven = st.number_input('Kilometers Driven', value=50000)
+    year = st.number_input('Year of Purchase', min_value=1990, max_value=2023, value=2015)
+    fuel_Diesel = st.checkbox('Fuel Type: Diesel')
+    fuel_LPG = st.checkbox('Fuel Type: LPG')
+    seller_type_Individual = st.checkbox('Seller Type: Individual')
+    seller_type_Trustmark_Dealer = st.checkbox('Seller Type: Trustmark Dealer')
+    transmission_Manual = st.checkbox('Transmission: Manual')
+    owner_Fourth_and_Above_Owner = st.checkbox('Owner: Fourth and Above Owner')
+    owner_Second_Owner = st.checkbox('Owner: Second Owner')
+    owner_Test_Drive_Car = st.checkbox('Owner: Test Drive Car')
+    owner_Third_Owner = st.checkbox('Owner: Third Owner')
 
-        # Dropdown list for car_model based on selected car_maker
-        if 'car_model' in df.columns and car_maker != '':
-            car_model_options = df[df['car_maker'] == car_maker]['car_model'].unique()
-            car_model = st.sidebar.selectbox('Car Model', [''] + list(car_model_options))
-        else:
-            car_model = ''
+    # Function to predict the price based on user input
+    def predict_price(car_details, car_age, km_driven, year, fuel_Diesel, fuel_LPG, seller_type_Individual, seller_type_Trustmark_Dealer, transmission_Manual, owner_Fourth_and_Above_Owner, owner_Second_Owner, owner_Test_Drive_Car, owner_Third_Owner):
+        input_data = np.array([car_age, km_driven, year, fuel_Diesel, fuel_LPG, seller_type_Individual, seller_type_Trustmark_Dealer, transmission_Manual, owner_Fourth_and_Above_Owner, owner_Second_Owner, owner_Test_Drive_Car, owner_Third_Owner]).reshape(1, -1)
+        predicted_price = model.predict(input_data)
+        return predicted_price
 
-        fuel = st.sidebar.selectbox('Fuel', ['Petrol', 'Diesel', 'CNG', 'LPG', 'Electric'])
-        seller_type = st.sidebar.selectbox('Seller Type', ['Individual', 'Dealer', 'Trustmark Dealer'])
-        transmission = st.sidebar.selectbox('Transmission', ['Manual', 'Automatic'])
-        owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner', 'Test Drive Car'])
-        year = st.sidebar.number_input('Year', min_value=1980, max_value=2023)
-        km_driven = st.sidebar.number_input('Kilometers Driven', min_value=0)
-
-    
-        # Prepare input data
-        input_data = pd.DataFrame({
-            'fuel': [fuel],
-            'seller_type': [seller_type],
-            'transmission': [transmission],
-            'owner': [owner],
-            'car_maker': [car_maker],
-            'car_model': [car_model],
-            'year': [year],
-            'km_driven': [km_driven]
-        })
-
-        # Convert categorical variables to dummy variables
-        categorical_cols = ['fuel', 'seller_type', 'transmission', 'owner', 'car_maker', 'car_model']
-        for col in categorical_cols:
-            if col in df.columns:
-                dummy_cols = pd.get_dummies(input_data[col], prefix=col, drop_first=True)
-                input_data = pd.concat([input_data, dummy_cols], axis=1)
-                input_data.drop(col, axis=1, inplace=True)
-
-        # Predict selling price
-        if st.sidebar.button('Predict'):
-            prediction = model.predict(input_data)
-            st.sidebar.header('Prediction')
-            st.sidebar.write(f'Predicted Selling Price: {prediction[0]}')
+    # Predict the price when the user clicks the 'Predict' button
+    if st.button('Predict'):
+        predicted_price = predict_price(car_details, car_age, km_driven, year, fuel_Diesel, fuel_LPG, seller_type_Individual, seller_type_Trustmark_Dealer, transmission_Manual, owner_Fourth_and_Above_Owner, owner_Second_Owner, owner_Test_Drive_Car, owner_Third_Owner)
+        st.success(f'Predicted Price: {predicted_price[0]:,.2f} INR')
 
 if __name__ == '__main__':
     main()
