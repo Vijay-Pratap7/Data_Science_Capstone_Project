@@ -16,7 +16,6 @@ def preprocess_features(features):
         name = df_features["name"].str.split(" ", expand=True)
         df_features["car_maker"] = name[0]
         df_features["car_model"] = name[1]
-        df_features.drop(["name"], axis=1, inplace=True)
     df_features = pd.get_dummies(df_features, drop_first=True)
     return df_features
 
