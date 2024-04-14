@@ -18,6 +18,15 @@ def preprocess_input(data):
     
     # Encoding categorical variables
     data = pd.get_dummies(data, drop_first=True)
+    
+    # Ensure all columns are present and in the same order as the training data
+    missing_cols = set(X_train.columns) - set(data.columns)
+    for col in missing_cols:
+        data[col] = 0
+    
+    # Reorder columns to match the order of training data
+    data = data[X_train.columns]
+    
     return data
 
 # Function to predict car price
