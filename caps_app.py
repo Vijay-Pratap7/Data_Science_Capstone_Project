@@ -1,85 +1,75 @@
-import sklearn
-import streamlit as st
-import scipy
-import scipy.stats
-import itertools
-import pickle
-
-# Importing Libraries for EDA
 import pandas as pd
-import numpy as np
+import streamlit as st
+import pickle
+from sklearn.preprocessing import LabelEncoder
 
 def main():
-    st.header("ML Web App")
-    data = st.file_uploader("Upload a Dataset", type = ["csv"])
+    st.header("Used Car Price Prediction")
+
+    # File upload
+    data = st.file_uploader("Upload a Dataset", type=["csv"])
 
     if data is not None:
-      df = pd.read_csv(data)
-      st.dataframe(df.head())
+        df = pd.read_csv(data)
+        st.dataframe(df.head())
 
-      name = st.selectbox("Select Car Name", options = df["name"].unique())
-      st.write(name)
-      split = name.split(" ")
-      car_maker = split[0]
-      car_model = split[1]
+        # Feature engineering
+        df["car_age"] = 2023 - df["year"]
+        name = df["name"].str.split(" ", expand=True)
+        df["car_maker"] = name[0]
+        df["car_model"] = name[1]
+        df.drop(["name"], axis=1, inplace=True)
+        df = pd.get_dummies(df, drop_first=True)
 
+        # Encoding target variable
+        encoder = LabelEncoder()
+        df["selling_price_encoded"] = encoder.fit_transform(df["selling_price"])
 
-      option = list(itertools.chain(range(1980, 2024, 1)))
+        # UI for user input
+        name = st.selectbox("Select Car Name", options=df["name"].unique())
+        split = name.split(" ")
+        car_maker = split[0]
+        car_model = split[1]
+        years = st.selectbox("Select year of model", options=range(1980, 2024))
+        current_year = 2023
+        car_age = current_year - years
+        km_driven = st.slider('Select km driven Length', 0.0, 300000.0, step=1000.0)
+        fuel_options = ["Diesel", "Petrol", "CNG", "LPG", "Electric"]
+        fuel = st.selectbox("Select fuel Width", options=fuel_options)
+        seller_type_options = ["Individual", "Dealer", "Trustmark Dealer"]
+        seller_type = st.selectbox('Select seller_type Length', options=seller_type_options)
+        transmission_options = ["Manual", "Automatic"]
+        transmission = st.selectbox('Select transmission Width', options=transmission_options)
+        owner_options = ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"]
+        owner = st.selectbox('Select owner Width', options=owner_options)
 
-      years = st.selectbox("Select year of model", options = option)
-      st.write(years)
+        test_data = [[car_maker, car_model, car_age, km_driven, fuel, seller_type, transmission, owner]]
+        st.write('Test_Data:', test_data)
 
-      current_year = 2023
-      car_age = current_year-years
+        if st.button('Predict'):
+            input_data = {
+                "car_maker": [car_maker],
+                "car_model": [car_model],
+                "car_age": [car_age],
+                'km_driven': [km_driven],
+                'fuel': [fuel],
+                'seller_type': [seller_type],
+                'transmission': [transmission],
+                'owner': [owner]
+            }
+            input_df = pd.DataFrame(input_data)
 
-      km_driven = st.slider('Select km driven Length', 0.0, 300000.0, step = 1000.0)
+            # Load the best model
+            with open('best_model.pkl', 'rb') as file:
+                best_model = pickle.load(file)
 
-      fuel_options = ["Diesel", "Petrol", "CNG", "LPG", "Electric"]
-      fuel = st.selectbox("Select fuel Width", options = fuel_options)
+            # Predict on input data
+            prediction = best_model.predict(input_df)
 
-      seller_type_options = ["Individual", "Dealer", "Trustmark Dealer"]
-      seller_type = st.selectbox('Select seller_type Length', options = seller_type_options)
-
-      transmission_options = ["Manual", "Automatic"]
-      transmission = st.selectbox('Select transmission Width', options = transmission_options)
-
-      owner_options = ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"]
-      owner = st.selectbox('Select owner Width', options = owner_options)
-
-      test  = [[ name, years, km_driven, fuel, seller_type, transmission, owner]]
-      st.write('Test_Data', test)
-
-
-      if st.button('Predict', key = "int"):
-        input_data = {"car_maker": [car_maker],
-                    "car_model": [car_model],
-                    "car_age":[car_age],
-                    'km_driven': [km_driven],
-                    'fuel': [fuel],
-                    'seller_type': [seller_type],
-                    'transmission': [transmission],
-                    'owner': [owner]}
-# Convert categorical variables to one-hot encoded format
-input_df = pd.get_dummies(input_df, columns=['car_maker', 'fuel', 'seller_type', 'transmission', 'owner'])
-
-
-        # Update the file path to reflect the correct location in the Streamlit cloud
-        pkl_file_path = "rfmodel.pkl"
-
-        # Load the pickle file
-        with open(pkl_file_path, "rb") as file:
-          pipeline = pickle.load(file)
-
-
-        predictions = pipeline.predict(input_df)
-        
-        if predictions<0:
-            st.success("There were inaccuracies in the details entered by you.")
-        else:
-            st.success(round(predictions[0]))
-
-      #  st.success(predictions[0])
-
+            if prediction[0] < 0:
+                st.error("There were inaccuracies in the details entered by you.")
+            else:
+                st.success(f"Predicted Selling Price: {round(prediction[0], 2)}")
 
 if __name__ == "__main__":
     main()
