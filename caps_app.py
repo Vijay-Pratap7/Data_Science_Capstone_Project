@@ -3,7 +3,7 @@ import pandas as pd
 import pickle
 
 # Load the saved model
-with open('rfmodel.pkl', 'rb') as file:
+with open('best_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Load the dataframe
@@ -13,10 +13,11 @@ df = pd.read_csv("CAR DETAILS.csv")
 def preprocess_features(features):
     df_features = pd.DataFrame(features, index=[0])
     df_features["car_age"] = 2023 - df_features["year"]
-    name = df_features["name"].str.split(" ", expand=True)
-    df_features["car_maker"] = name[0]
-    df_features["car_model"] = name[1]
-    df_features.drop(["name"], axis=1, inplace=True)
+    if "name" in df_features.columns:
+        name = df_features["name"].str.split(" ", expand=True)
+        df_features["car_maker"] = name[0]
+        df_features["car_model"] = name[1]
+        df_features.drop(["name"], axis=1, inplace=True)
     df_features = pd.get_dummies(df_features, drop_first=True)
     return df_features
 
