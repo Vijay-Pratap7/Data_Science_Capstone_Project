@@ -1,60 +1,84 @@
+import sklearn
 import streamlit as st
-import pandas as pd
+import scipy
+import scipy.stats
+import itertools
 import pickle
 
-# Load the saved model
-with open('best_model.pkl', 'rb') as file:
-    model = pickle.load(file)
+# Importing Libraries for EDA
+import pandas as pd
+import numpy as np
 
-# Load the dataframe
-df = pd.read_csv("CAR DETAILS.csv")
+def main():
+    st.header("ML Web App")
+    data = st.file_uploader("Upload a Dataset", type = ["csv"])
 
-# Function to preprocess features
-def preprocess_features(features):
-    df_features = pd.DataFrame(features, index=[0])
-    df_features["car_age"] = 2023 - df_features["year"]
-    if "name" in df_features.columns:
-        name = df_features["name"].str.split(" ", expand=True)
-        df_features["car_maker"] = name[0]
-        df_features["car_model"] = name[1]
-        df_features.drop(["name"], axis=1, inplace=True)
-    df_features = pd.get_dummies(df_features, drop_first=True)
-    return df_features
+    if data is not None:
+      df = pd.read_csv(data)
+      st.dataframe(df.head())
 
-# Function to predict car price
-def predict_price(features):
-    df_features = preprocess_features(features)
-    prediction = model.predict(df_features)
-    return prediction
+      name = st.selectbox("Select Car Name", options = df["name"].unique())
+      st.write(name)
+      split = name.split(" ")
+      car_maker = split[0]
+      car_model = split[1]
 
-# Streamlit UI
-st.title("Car Price Prediction")
 
-# Sidebar inputs
-st.sidebar.header("Enter Car Details")
-if "name" in df.columns:  # Check if 'name' column exists in the dataframe
-    car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
-else:
-    st.sidebar.error("No 'name' column found in the dataframe. Please check your data source.")
-year = st.sidebar.number_input("Year", 1900, 2022, step=1)
-km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
-fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique() if "fuel" in df.columns else [])
-seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique() if "seller_type" in df.columns else [])
-transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique() if "transmission" in df.columns else [])
-owner = st.sidebar.selectbox("Owner", df["owner"].unique() if "owner" in df.columns else [])
+      option = list(itertools.chain(range(1980, 2024, 1)))
 
-# Transform sidebar inputs into features
-features = {
-    'year': year,
-    'km_driven': km_driven,
-    'fuel_type': fuel_type,
-    'seller_type': seller_type,
-    'transmission': transmission,
-    'owner': owner
-}
+      years = st.selectbox("Select year of model", options = option)
+      st.write(years)
 
-# Predict price on button click
-if st.sidebar.button("Predict"):
-    # Make prediction
-    prediction = predict_price(features)
-    st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
+      current_year = 2023
+      car_age = current_year-years
+
+      km_driven = st.slider('Select km driven Length', 0.0, 300000.0, step = 1000.0)
+
+      fuel_options = ["Diesel", "Petrol", "CNG", "LPG", "Electric"]
+      fuel = st.selectbox("Select fuel Width", options = fuel_options)
+
+      seller_type_options = ["Individual", "Dealer", "Trustmark Dealer"]
+      seller_type = st.selectbox('Select seller_type Length', options = seller_type_options)
+
+      transmission_options = ["Manual", "Automatic"]
+      transmission = st.selectbox('Select transmission Width', options = transmission_options)
+
+      owner_options = ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"]
+      owner = st.selectbox('Select owner Width', options = owner_options)
+
+      test  = [[ name, years, km_driven, fuel, seller_type, transmission, owner]]
+      st.write('Test_Data', test)
+
+
+      if st.button('Predict', key = "int"):
+        input_data = {"car_maker": [car_maker],
+                    "car_model": [car_model],
+                    "car_age":[car_age],
+                    'km_driven': [km_driven],
+                    'fuel': [fuel],
+                    'seller_type': [seller_type],
+                    'transmission': [transmission],
+                    'owner': [owner]}
+
+        input_df = pd.DataFrame(input_data)
+
+        # Update the file path to reflect the correct location in the Streamlit cloud
+        pkl_file_path = "rfmodel.pkl"
+
+        # Load the pickle file
+        with open(pkl_file_path, "rb") as file:
+          pipeline = pickle.load(file)
+
+
+        predictions = pipeline.predict(input_df)
+        
+        if predictions<0:
+            st.success("There were inaccuracies in the details entered by you.")
+        else:
+            st.success(round(predictions[0]))
+
+      #  st.success(predictions[0])
+
+
+if __name__ == "__main__":
+    main()
