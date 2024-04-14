@@ -1,86 +1,71 @@
 import streamlit as st
 import pandas as pd
-import numpy as np
 import pickle
-from sklearn.model_selection import train_test_split
 
-# Load the trained model
+# Load the saved model
 with open('best_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
-# Function to preprocess input data
-def preprocess_input(data, X_train):
-    # Feature engineering
-    data["car_age"] = 2023 - data["year"]
-    name = data["name"].str.split(" ", expand=True)
-    data["car_maker"] = name[0]
-    data["car_model"] = name[1]
-    data.drop(["name"], axis=1, inplace=True)
-    
-    # Encoding categorical variables
-    data = pd.get_dummies(data, drop_first=True)
-    
-    # Ensure all columns are present and in the same order as the training data
-    missing_cols = set(X_train.columns) - set(data.columns)
-    for col in missing_cols:
-        data[col] = 0
-    
-    # Reorder columns to match the order of training data
-    data = data[X_train.columns]
-    
-    return data
+# Load the dataframe
+df = pd.read_csv("CAR DETAILS.csv")
+
+# Function to preprocess features
+def preprocess_features(features):
+    df_features = pd.DataFrame(features, index=[0])
+    df_features["car_age"] = 2023 - df_features["year"]
+    name = df_features["name"].str.split(" ", expand=True)
+    df_features["car_maker"] = name[0]
+    df_features["car_model"] = name[1]
+    df_features.drop(["name"], axis=1, inplace=True)
+    df_features = pd.get_dummies(df_features, drop_first=True)
+    return df_features
 
 # Function to predict car price
-def predict_price(car_data):
-    car_data_processed = preprocess_input(car_data, X_train)
-    prediction = model.predict(car_data_processed)
+def predict_price(features):
+    df_features = preprocess_features(features)
+    prediction = model.predict(df_features)
     return prediction
 
-# Streamlit app
-def main():
-    st.title("Used Car Price Prediction")
-    
-    # Read the data
-    df = pd.read_csv("CAR DETAILS.csv")
-    
-    # Check if "selling_price" column exists in the dataset
-    if "selling_price" not in df.columns:
-        st.error("Error: 'selling_price' column not found in dataset.")
-        return
-    
-    # Split the data into features and target
-    X = df.drop(["selling_price"], axis=1)
-    y = df["selling_price"]
-    
-    # Split the data into train and test sets
-    X_train, _, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
-    
-    # Input form
-    st.sidebar.header("Enter Car Details")
-    
-    year = st.sidebar.number_input("Year of Manufacture", min_value=1900, max_value=2023, step=1)
-    km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0, step=1)
-    fuel = st.sidebar.selectbox("Fuel Type", ["Diesel", "Petrol", "CNG", "LPG"])
-    seller_type = st.sidebar.selectbox("Seller Type", ["Individual", "Dealer", "Trustmark Dealer"])
-    transmission = st.sidebar.selectbox("Transmission Type", ["Manual", "Automatic"])
-    owner = st.sidebar.selectbox("Owner Type", ["First Owner", "Second Owner", "Third Owner or More"])
-    car_names = df["name"].unique()
-    selected_car_name = st.sidebar.selectbox("Car Name", car_names)
-    
-    car_data = pd.DataFrame({
-        "year": [year],
-        "km_driven": [km_driven],
-        "fuel_" + fuel: [1],
-        "seller_type_" + seller_type: [1],
-        "transmission_" + transmission: [1],
-        "owner_" + owner: [1],
-        "name": [selected_car_name]
-    })
-    
-    if st.sidebar.button("Predict"):
-        # Predict car price
-        prediction = predict_price(car_data)
-        st.sidebar.success(f"The estimated selling price of the car is ₹{prediction[0]}")
+# Streamlit UI
+st.title("Car Price Prediction")
 
-if __name__ == "__main__":
-    main()
+# Sidebar inputs
+st.sidebar.header("Enter Car Details")
+car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
+year = st.sidebar.number_input("Year", 1900, 2022, step=1)
+km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
+fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
+seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
+transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
+owner = st.sidebar.selectbox("Owner", df["owner"].unique())
+
+# Get selected car details
+car_details = df[(df["name"] == car_name) & 
+                 (df["year"] == year) & 
+                 (df["fuel"] == fuel_type) & 
+                 (df["seller_type"] == seller_type) & 
+                 (df["transmission"] == transmission) & 
+                 (df["owner"] == owner)]
+
+# Display selected car details
+st.sidebar.subheader("Selected Car Details")
+if not car_details.empty:
+    st.sidebar.write(car_details.iloc[0].to_dict())
+else:
+    st.sidebar.warning("Car details not found for the selected parameters.")
+
+# Transform sidebar inputs into features
+features = {
+    'year': year,
+    'km_driven': km_driven,
+    'fuel_type': fuel_type,
+    'seller_type': seller_type,
+    'transmission': transmission,
+    'owner': owner
+}
+
+# Predict price on button click
+if st.sidebar.button("Predict"):
+    # Make prediction
+    prediction = predict_price(features)
+    st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
