@@ -13,11 +13,12 @@ def load_data(file):
 # Function to preprocess data
 def preprocess_data(df):
     df.drop_duplicates(inplace=True)
-    df["car_age"] = 2023 - df["Year"]
-    name = df["name"].str.split(" ", expand=True)
-    df["car_maker"] = name[0]
-    df["car_model"] = name[1]
-    df.drop(["name"], axis=1, inplace=True)
+    if 'name' in df.columns:
+        df["car_age"] = 2023 - df["year"]
+        name = df["name"].str.split(" ", expand=True)
+        df["car_maker"] = name[0]
+        df["car_model"] = name[1]
+        df.drop(["name"], axis=1, inplace=True)
     df = pd.get_dummies(df, drop_first=True)
     return df
 
