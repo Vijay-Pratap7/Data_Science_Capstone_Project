@@ -10,7 +10,7 @@ with open('best_model.pkl', 'rb') as file:
 # Function to preprocess input data
 def preprocess_input(data):
     # Feature engineering
-    data["car_age"] = 2023 - data["Year"]
+    data["car_age"] = 2023 - data["year"]
     name = data["name"].str.split(" ", expand=True)
     data["car_maker"] = name[0]
     data["car_model"] = name[1]
