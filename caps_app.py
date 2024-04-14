@@ -31,28 +31,16 @@ st.title("Car Price Prediction")
 
 # Sidebar inputs
 st.sidebar.header("Enter Car Details")
-car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
+if "name" in df.columns:  # Check if 'name' column exists in the dataframe
+    car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
+else:
+    st.sidebar.error("No 'name' column found in the dataframe. Please check your data source.")
 year = st.sidebar.number_input("Year", 1900, 2022, step=1)
 km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
-fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
-seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
-transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
-owner = st.sidebar.selectbox("Owner", df["owner"].unique())
-
-# Get selected car details
-car_details = df[(df["name"] == car_name) & 
-                 (df["year"] == year) & 
-                 (df["fuel"] == fuel_type) & 
-                 (df["seller_type"] == seller_type) & 
-                 (df["transmission"] == transmission) & 
-                 (df["owner"] == owner)]
-
-# Display selected car details
-st.sidebar.subheader("Selected Car Details")
-if not car_details.empty:
-    st.sidebar.write(car_details.iloc[0].to_dict())
-else:
-    st.sidebar.warning("Car details not found for the selected parameters.")
+fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique() if "fuel" in df.columns else [])
+seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique() if "seller_type" in df.columns else [])
+transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique() if "transmission" in df.columns else [])
+owner = st.sidebar.selectbox("Owner", df["owner"].unique() if "owner" in df.columns else [])
 
 # Transform sidebar inputs into features
 features = {
