@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
+from sklearn.model_selection import train_test_split
 
 # Load the trained model
 with open('best_model.pkl', 'rb') as file:
@@ -41,6 +42,11 @@ def main():
     
     # Read the data
     df = pd.read_csv("CAR DETAILS.csv")
+    
+    # Check if "selling_price" column exists in the dataset
+    if "selling_price" not in df.columns:
+        st.error("Error: 'selling_price' column not found in dataset.")
+        return
     
     # Split the data into features and target
     X = df.drop(["selling_price"], axis=1)
