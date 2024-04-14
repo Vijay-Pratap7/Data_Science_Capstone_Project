@@ -15,9 +15,10 @@ def main():
 
         # Feature engineering
         df["car_age"] = 2023 - df["year"]
-        name = df["name"].str.split(" ", expand=True)
+        name = df["Car_Name"].str.split(" ", expand=True)
         df["car_maker"] = name[0]
         df["car_model"] = name[1]
+        df.drop(["Car_Name"], axis=1, inplace=True)
         df = pd.get_dummies(df, drop_first=True)
 
         # Encoding target variable
@@ -25,8 +26,9 @@ def main():
         df["selling_price_encoded"] = encoder.fit_transform(df["selling_price"])
 
         # UI for user input
-        name = st.selectbox("Select Car Name", options=df["name"].unique())
-        split = name.split(" ")
+        car_name_options = df["Car_Name"].unique()
+        car_name = st.selectbox("Select Car Name", options=car_name_options)
+        split = car_name.split(" ")
         car_maker = split[0]
         car_model = split[1]
         years = st.selectbox("Select year of model", options=range(1980, 2024))
@@ -59,7 +61,7 @@ def main():
             input_df = pd.DataFrame(input_data)
 
             # Load the best model
-            with open('rfmodel.pkl', 'rb') as file:
+            with open('best_model.pkl', 'rb') as file:
                 best_model = pickle.load(file)
 
             # Predict on input data
