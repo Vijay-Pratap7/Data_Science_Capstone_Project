@@ -6,12 +6,24 @@ import pickle
 with open('rfmodel.pkl', 'rb') as file:
     model = pickle.load(file)
 
+# Load the dataframe
+df = pd.read_csv("CAR DETAILS.csv")
+
+# Function to preprocess features
+def preprocess_features(features):
+    df_features = pd.DataFrame(features, index=[0])
+    df_features["car_age"] = 2023 - df_features["year"]
+    name = df_features["name"].str.split(" ", expand=True)
+    df_features["car_maker"] = name[0]
+    df_features["car_model"] = name[1]
+    df_features.drop(["name"], axis=1, inplace=True)
+    df_features = pd.get_dummies(df_features, drop_first=True)
+    return df_features
+
 # Function to predict car price
 def predict_price(features):
-    # Preprocess the input features (assuming they are in the same format as the original dataframe)
-    df = pd.DataFrame(features, index=[0])
-    # Make prediction
-    prediction = model.predict(df)
+    df_features = preprocess_features(features)
+    prediction = model.predict(df_features)
     return prediction
 
 # Streamlit UI
@@ -19,12 +31,28 @@ st.title("Car Price Prediction")
 
 # Sidebar inputs
 st.sidebar.header("Enter Car Details")
+car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
 year = st.sidebar.number_input("Year", 1900, 2022, step=1)
 km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
-fuel_type = st.sidebar.selectbox("Fuel Type", ["Diesel", "Petrol", "CNG", "LPG"])
-seller_type = st.sidebar.selectbox("Seller Type", ["Individual", "Dealer"])
-transmission = st.sidebar.selectbox("Transmission", ["Manual", "Automatic"])
-owner = st.sidebar.selectbox("Owner", ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner"])
+fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
+seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
+transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
+owner = st.sidebar.selectbox("Owner", df["owner"].unique())
+
+# Get selected car details
+car_details = df[(df["name"] == car_name) & 
+                 (df["year"] == year) & 
+                 (df["fuel"] == fuel_type) & 
+                 (df["seller_type"] == seller_type) & 
+                 (df["transmission"] == transmission) & 
+                 (df["owner"] == owner)]
+
+# Display selected car details
+st.sidebar.subheader("Selected Car Details")
+if not car_details.empty:
+    st.sidebar.write(car_details.iloc[0].to_dict())
+else:
+    st.sidebar.warning("Car details not found for the selected parameters.")
 
 # Transform sidebar inputs into features
 features = {
