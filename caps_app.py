@@ -38,7 +38,7 @@ def main():
 
     # Function to predict the price based on user input
     def predict_price(km_driven, year, fuel, seller_type, transmission, owner):
-        input_data = np.array([km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]])
+        input_data = [km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]]
         predicted_price = model.predict([input_data])
         return predicted_price
 
