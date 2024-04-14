@@ -12,7 +12,7 @@ df = pd.read_csv("CAR DETAILS.csv")
 # Function to preprocess features
 def preprocess_features(features):
     df_features = pd.DataFrame(features, index=[0])
-    df_features["car_age"] = 2023 - df_features["year"]
+    df_features["car_age"] = 2023 - df_features["Year"]
     name = df_features["name"].str.split(" ", expand=True)
     df_features["car_maker"] = name[0]
     df_features["car_model"] = name[1]
