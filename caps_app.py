@@ -58,7 +58,7 @@ def load_model():
     return model
 
 # Function to predict on sample data
-def predict_sample_data(model, df_sample):
+def predict_sample_data(model, df_sample, target_col):
     X_sample = df_sample.drop(target_col, axis=1)
     y_sample = df_sample[target_col]
     y_pred_sample = model.predict(X_sample)
@@ -91,7 +91,7 @@ def main():
         df_sample = df.sample(20, random_state=42)
 
         # Predict on sample data
-        y_sample, y_pred_sample = predict_sample_data(model, df_sample)
+        y_sample, y_pred_sample = predict_sample_data(model, df_sample, target_col)
 
         # Display scores
         st.subheader("Scores for main data:")
