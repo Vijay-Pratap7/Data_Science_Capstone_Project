@@ -56,7 +56,7 @@ def main():
         features = {}
         for col in df.columns:
             if col != target_col:
-                features[col] = st.number_input(f"Enter {col}", min_value=df[col].min(), max_value=df[col].max(), value=df[col].mean())
+                features[col] = st.number_input(f"Enter {col}", min_value=float(df[col].min()), max_value=float(df[col].max()), value=float(df[col].mean()))
 
         if st.button("Predict"):
             input_features = pd.DataFrame(features, index=[0])
