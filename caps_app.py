@@ -9,10 +9,13 @@ with open('best_model.pkl', 'rb') as file:
 # Load the dataframe
 df = pd.read_csv("CAR DETAILS.csv")
 
+# Check dataframe columns
+st.write("DataFrame Columns:", df.columns)
+
 # Function to preprocess features
 def preprocess_features(features):
     df_features = pd.DataFrame(features, index=[0])
-    df_features["car_age"] = 2023 - df_features["Year"]
+    df_features["car_age"] = 2023 - df_features["year"]
     name = df_features["name"].str.split(" ", expand=True)
     df_features["car_maker"] = name[0]
     df_features["car_model"] = name[1]
@@ -32,40 +35,30 @@ st.title("Car Price Prediction")
 # Sidebar inputs
 st.sidebar.header("Enter Car Details")
 car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
-year = st.sidebar.number_input("Year", 1900, 2022, step=1)
-km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
-fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
-seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
-transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
-owner = st.sidebar.selectbox("Owner", df["owner"].unique())
+# Check if car_name exists in dataframe
+if car_name in df["name"].unique():
+    selected_car = df[df["name"] == car_name].iloc[0]  # Get the first row with the selected car name
+    year = st.sidebar.number_input("Year", selected_car["year"], selected_car["year"], step=1)
+    km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
+    fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
+    seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
+    transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
+    owner = st.sidebar.selectbox("Owner", df["owner"].unique())
 
-# Get selected car details
-car_details = df[(df["name"] == car_name) & 
-                 (df["year"] == year) & 
-                 (df["fuel"] == fuel_type) & 
-                 (df["seller_type"] == seller_type) & 
-                 (df["transmission"] == transmission) & 
-                 (df["owner"] == owner)]
+    # Transform sidebar inputs into features
+    features = {
+        'year': year,
+        'km_driven': km_driven,
+        'fuel_type': fuel_type,
+        'seller_type': seller_type,
+        'transmission': transmission,
+        'owner': owner
+    }
 
-# Display selected car details
-st.sidebar.subheader("Selected Car Details")
-if not car_details.empty:
-    st.sidebar.write(car_details.iloc[0].to_dict())
+    # Predict price on button click
+    if st.sidebar.button("Predict"):
+        # Make prediction
+        prediction = predict_price(features)
+        st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
 else:
-    st.sidebar.warning("Car details not found for the selected parameters.")
-
-# Transform sidebar inputs into features
-features = {
-    'year': year,
-    'km_driven': km_driven,
-    'fuel_type': fuel_type,
-    'seller_type': seller_type,
-    'transmission': transmission,
-    'owner': owner
-}
-
-# Predict price on button click
-if st.sidebar.button("Predict"):
-    # Make prediction
-    prediction = predict_price(features)
-    st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
+    st.warning("Selected car name not found in the dataframe.")
