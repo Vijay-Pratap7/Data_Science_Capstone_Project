@@ -10,6 +10,11 @@ with open('rfmodel.pkl', 'rb') as file:
 # Load the DataFrame with car details
 df = pd.read_csv("CAR DETAILS.csv")
 
+# Label encoding for categorical variables
+label_encoders = {}
+for col in ['fuel', 'seller_type', 'transmission', 'owner']:
+    label_encoders[col] = {val: idx for idx, val in enumerate(df[col].unique())}
+
 # Streamlit app
 def main():
     st.title('Used Car Price Prediction')
@@ -23,14 +28,14 @@ def main():
     # Input fields for user to enter other car details
     km_driven = st.number_input('Kilometers Driven', value=50000)
     year = st.number_input('Year of Purchase', min_value=1990, max_value=2023, value=2015)
-    fuel = st.selectbox('Fuel Type', df['fuel'].unique())
-    seller_type = st.selectbox('Seller Type', df['seller_type'].unique())
-    transmission = st.selectbox('Transmission', df['transmission'].unique())
-    owner = st.selectbox('Owner', df['owner'].unique())
+    fuel = st.selectbox('Fuel Type', list(label_encoders['fuel'].keys()))
+    seller_type = st.selectbox('Seller Type', list(label_encoders['seller_type'].keys()))
+    transmission = st.selectbox('Transmission', list(label_encoders['transmission'].keys()))
+    owner = st.selectbox('Owner', list(label_encoders['owner'].keys()))
 
     # Function to predict the price based on user input
     def predict_price(car_details, km_driven, year, fuel, seller_type, transmission, owner):
-        input_data = np.array([km_driven, year, fuel, seller_type, transmission, owner]).reshape(1, -1)
+        input_data = np.array([km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]]).reshape(1, -1)
         predicted_price = model.predict(input_data)
         return predicted_price
 
