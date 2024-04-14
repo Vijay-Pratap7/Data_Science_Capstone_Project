@@ -10,6 +10,9 @@ with open('rfmodel.pkl', 'rb') as file:
 # Load the DataFrame with car details
 df = pd.read_csv("CAR DETAILS.csv")
 
+# Relevant features used during training
+relevant_features = ['km_driven', 'year', 'fuel_Diesel', 'fuel_LPG', 'seller_type_Individual', 'seller_type_Trustmark_Dealer', 'transmission_Manual', 'owner_Fourth_and_Above_Owner', 'owner_Second_Owner', 'owner_Test_Drive_Car', 'owner_Third_Owner']
+
 # Label encoding for categorical variables
 label_encoders = {}
 for col in ['fuel', 'seller_type', 'transmission', 'owner']:
@@ -34,14 +37,14 @@ def main():
     owner = st.selectbox('Owner', list(label_encoders['owner'].keys()))
 
     # Function to predict the price based on user input
-    def predict_price(car_details, km_driven, year, fuel, seller_type, transmission, owner):
-        input_data = np.array([km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]]).reshape(1, -1)
-        predicted_price = model.predict(input_data)
+    def predict_price(km_driven, year, fuel, seller_type, transmission, owner):
+        input_data = np.array([km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]])
+        predicted_price = model.predict([input_data])
         return predicted_price
 
     # Predict the price when the user clicks the 'Predict' button
     if st.button('Predict'):
-        predicted_price = predict_price(car_details, km_driven, year, fuel, seller_type, transmission, owner)
+        predicted_price = predict_price(km_driven, year, fuel, seller_type, transmission, owner)
         st.success(f'Predicted Price: {predicted_price[0]:,.2f} INR')
 
 if __name__ == '__main__':
