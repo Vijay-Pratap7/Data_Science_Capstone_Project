@@ -60,7 +60,7 @@ def main():
                     'transmission': [transmission],
                     'owner': [owner]}
 
-        input_df = pd.get_dummies(input_data, columns=['car_maker', 'fuel', 'seller_type', 'transmission', 'owner'])
+        input_df = pd.DataFrame(input_data, index=[0])
 
         # Update the file path to reflect the correct location in the Streamlit cloud
         pkl_file_path = "rfmodel.pkl"
