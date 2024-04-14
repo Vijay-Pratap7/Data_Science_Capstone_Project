@@ -37,28 +37,32 @@ st.sidebar.header("Enter Car Details")
 car_name = st.sidebar.selectbox("Car Name", df["name"].unique())
 # Check if car_name exists in dataframe
 if car_name in df["name"].unique():
-    selected_car = df[df["name"] == car_name].iloc[0]  # Get the first row with the selected car name
-    year = st.sidebar.number_input("Year", selected_car["year"], selected_car["year"], step=1)
-    km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
-    fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
-    seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
-    transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
-    owner = st.sidebar.selectbox("Owner", df["owner"].unique())
+    selected_car = df[df["name"] == car_name]
+    if not selected_car.empty:
+        selected_car = selected_car.iloc[0]  # Get the first row with the selected car name
+        year = selected_car["year"]
+        km_driven = st.sidebar.number_input("Kilometers Driven", min_value=0)
+        fuel_type = st.sidebar.selectbox("Fuel Type", df["fuel"].unique())
+        seller_type = st.sidebar.selectbox("Seller Type", df["seller_type"].unique())
+        transmission = st.sidebar.selectbox("Transmission", df["transmission"].unique())
+        owner = st.sidebar.selectbox("Owner", df["owner"].unique())
 
-    # Transform sidebar inputs into features
-    features = {
-        'year': year,
-        'km_driven': km_driven,
-        'fuel_type': fuel_type,
-        'seller_type': seller_type,
-        'transmission': transmission,
-        'owner': owner
-    }
+        # Transform sidebar inputs into features
+        features = {
+            'year': year,
+            'km_driven': km_driven,
+            'fuel_type': fuel_type,
+            'seller_type': seller_type,
+            'transmission': transmission,
+            'owner': owner
+        }
 
-    # Predict price on button click
-    if st.sidebar.button("Predict"):
-        # Make prediction
-        prediction = predict_price(features)
-        st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
+        # Predict price on button click
+        if st.sidebar.button("Predict"):
+            # Make prediction
+            prediction = predict_price(features)
+            st.success(f"The predicted car price is ₹ {prediction[0]:,.2f}")
+    else:
+        st.warning("Selected car details not found in the dataframe.")
 else:
     st.warning("Selected car name not found in the dataframe.")
