@@ -1,51 +1,83 @@
-import streamlit as st
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
 import pickle
+import streamlit as st
 
-# Load the pre-trained Random Forest model
-with open('rfmodel.pkl', 'rb') as file:
-    model = pickle.load(file)
+# Load the dataset
+@st.cache
+def load_data():
+    df = pd.read_csv("CAR DETAILS.csv")
+    return df
 
-# Load the DataFrame with car details
-df = pd.read_csv("CAR DETAILS.csv")
+# Preprocess the data
+def preprocess_data(df):
+    df.drop_duplicates(inplace=True)
+    df["car_age"] = 2023 - df["year"]
+    name = df["name"].str.split(" ", expand=True)
+    df["car_maker"] = name[0]
+    df["car_model"] = name[1]
+    df.drop(["name"], axis=1, inplace=True)
+    df = pd.get_dummies(df, drop_first=True, columns=df.columns.difference(['selling_price', 'km_driven', 'year', 'car_age']))
+    return df
 
-# Relevant features used during training
-relevant_features = ['km_driven', 'year', 'fuel_Diesel', 'fuel_LPG', 'seller_type_Individual', 'seller_type_Trustmark_Dealer', 'transmission_Manual', 'owner_Fourth_and_Above_Owner', 'owner_Second_Owner', 'owner_Test_Drive_Car', 'owner_Third_Owner']
+# Split data into features and target
+def split_data(df):
+    X = df.drop("selling_price", axis=1)
+    y = df["selling_price"]
+    return X, y
 
-# Label encoding for categorical variables
-label_encoders = {}
-for col in ['fuel', 'seller_type', 'transmission', 'owner']:
-    label_encoders[col] = {val: idx for idx, val in enumerate(df[col].unique())}
+# Train and evaluate models
+def train_evaluate_models(X_train, X_test, y_train, y_test):
+    models = {
+        "Random Forest Regressor": RandomForestRegressor()
+    }
+    results = {}
+    for name, model in models.items():
+        model.fit(X_train, y_train)
+        y_pred = model.predict(X_test)
+        mae = mean_absolute_error(y_test, y_pred)
+        mse = mean_squared_error(y_test, y_pred)
+        r2 = r2_score(y_test, y_pred)
+        results[name] = {"MAE": mae, "MSE": mse, "R2 Score": r2}
+    return results
 
-# Streamlit app
+# Save the best model
+def save_model(model):
+    with open('rfmodel.pkl', 'wb') as file:
+        pickle.dump(model, file)
+
+# Main function
 def main():
-    st.title('Used Car Price Prediction')
+    st.title("Used Car Price Prediction")
+    st.sidebar.title("Model Evaluation")
 
-    # Create a selectbox for car names
-    car_name = st.selectbox('Car Name', df['name'])
+    # Load data
+    df = load_data()
+    df = preprocess_data(df)
 
-    # Get car details based on the selected car name
-    car_details = df[df['name'] == car_name].iloc[0]
+    # Split data
+    X, y = split_data(df)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=7)
 
-    # Input fields for user to enter other car details
-    km_driven = st.number_input('Kilometers Driven', value=50000)
-    year = st.number_input('Year of Purchase', min_value=1990, max_value=2023, value=2015)
-    fuel = st.selectbox('Fuel Type', list(label_encoders['fuel'].keys()))
-    seller_type = st.selectbox('Seller Type', list(label_encoders['seller_type'].keys()))
-    transmission = st.selectbox('Transmission', list(label_encoders['transmission'].keys()))
-    owner = st.selectbox('Owner', list(label_encoders['owner'].keys()))
+    # Train and evaluate models
+    results = train_evaluate_models(X_train, X_test, y_train, y_test)
 
-    # Function to predict the price based on user input
-    def predict_price(km_driven, year, fuel, seller_type, transmission, owner):
-        input_data = [km_driven, year, label_encoders['fuel'][fuel], label_encoders['seller_type'][seller_type], label_encoders['transmission'][transmission], label_encoders['owner'][owner]]
-        predicted_price = model.predict([input_data])
-        return predicted_price
+    # Display results
+    st.write("### Model Evaluation Results")
+    for model, metrics in results.items():
+        st.write(f"**{model}**")
+        st.write("MAE:", metrics["MAE"])
+        st.write("MSE:", metrics["MSE"])
+        st.write("R2 Score:", metrics["R2 Score"])
+        st.write("---")
 
-    # Predict the price when the user clicks the 'Predict' button
-    if st.button('Predict'):
-        predicted_price = predict_price(km_driven, year, fuel, seller_type, transmission, owner)
-        st.success(f'Predicted Price: {predicted_price[0]:,.2f} INR')
+    # Save the best model
+    best_model = RandomForestRegressor()
+    best_model.fit(X_train, y_train)
+    save_model(best_model)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
