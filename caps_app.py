@@ -8,7 +8,7 @@ with open('best_model.pkl', 'rb') as file:
     model = pickle.load(file)
 
 # Function to preprocess input data
-def preprocess_input(data):
+def preprocess_input(data, X_train):
     # Feature engineering
     data["car_age"] = 2023 - data["year"]
     name = data["name"].str.split(" ", expand=True)
@@ -31,7 +31,7 @@ def preprocess_input(data):
 
 # Function to predict car price
 def predict_price(car_data):
-    car_data_processed = preprocess_input(car_data)
+    car_data_processed = preprocess_input(car_data, X_train)
     prediction = model.predict(car_data_processed)
     return prediction
 
@@ -41,6 +41,13 @@ def main():
     
     # Read the data
     df = pd.read_csv("CAR DETAILS.csv")
+    
+    # Split the data into features and target
+    X = df.drop(["selling_price"], axis=1)
+    y = df["selling_price"]
+    
+    # Split the data into train and test sets
+    X_train, _, _, _ = train_test_split(X, y, test_size=0.2, random_state=42)
     
     # Input form
     st.sidebar.header("Enter Car Details")
