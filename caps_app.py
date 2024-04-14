@@ -12,7 +12,7 @@ import pickle
 def load_data(file):
     df = pd.read_csv(file)
     df.drop_duplicates(inplace=True)
-    df["car_age"] = 2023 - df["Year"]
+    df["car_age"] = 2023 - df["year"]
     name = df["name"].str.split(" ", expand=True)
     df["car_maker"] = name[0]
     df["car_model"] = name[1]
@@ -56,6 +56,13 @@ def load_model():
     with open('best_model.pkl', 'rb') as file:
         model = pickle.load(file)
     return model
+
+# Function to predict on sample data
+def predict_sample_data(model, df_sample):
+    X_sample = df_sample.drop(target_col, axis=1)
+    y_sample = df_sample[target_col]
+    y_pred_sample = model.predict(X_sample)
+    return y_sample, y_pred_sample
 
 # Main function
 def main():
