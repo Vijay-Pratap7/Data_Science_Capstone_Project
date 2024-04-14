@@ -60,7 +60,7 @@ def main():
             input_df = pd.DataFrame(input_data)
 
             # Load the best model
-            with open('best_model.pkl', 'rb') as file:
+            with open('rfmodel.pkl', 'rb') as file:
                 best_model = pickle.load(file)
 
             # Predict on input data
