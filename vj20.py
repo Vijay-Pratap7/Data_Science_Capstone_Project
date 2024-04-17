@@ -7,8 +7,8 @@ with open('rfmodel_pipeline.pkl', 'rb') as file:
     model = pickle.load(file)
 
 def predict_price(features):
-    # Reshape features to match the model's input shape
-    input_data = pd.DataFrame(features).transpose()
+    # Create a DataFrame from the features dictionary
+    input_data = pd.DataFrame([features])
     # Make predictions
     prediction = model.predict(input_data)
     return prediction
