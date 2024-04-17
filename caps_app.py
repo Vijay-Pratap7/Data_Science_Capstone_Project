@@ -8,8 +8,12 @@ with open('rfmodel.pkl', 'rb') as file:
 
 # Function to preprocess input data
 def preprocess_input(data):
-      # Create a DataFrame from the input data
-    input_df = pd.DataFrame(data)
+    # File upload
+    data = st.file_uploader("Upload a Dataset", type=["csv"])
+
+    if data is not None:
+        df = pd.read_csv(data)
+        st.dataframe(df.head())
 
     # Calculate car age
     input_df["car_age"] = 2023 - input_df["year"]
