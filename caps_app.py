@@ -9,7 +9,7 @@ with open('rfmodel.pkl', 'rb') as file:
 
 # Function to predict car price
 def predict_price(car_details):
-    car_details_encoded = encoder.transform(car_details)
+    car_details_encoded = model.transform(car_details)
     prediction = model.predict(car_details_encoded.reshape(1, -1))
     return prediction[0]
 
