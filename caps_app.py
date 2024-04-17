@@ -8,7 +8,7 @@ from sklearn.preprocessing import LabelEncoder
 with open('rfmodel.pkl', 'rb') as file:
     model = pickle.load(file)
 
-@st.cache
+@st.cache_data
 def preprocess_input(df, year, km_driven, owner, fuel, seller_type, transmission, name):
     name_split = name.split(" ")
     car_maker = name_split[0]
