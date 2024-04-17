@@ -48,7 +48,6 @@ st.title('Car Price Prediction')
 
 # Input form for car details
 st.header('Enter Car Details')
-car_name = st.selectbox('name', name)
 year = st.number_input('Year', min_value=1900, max_value=2023)
 km_driven = st.number_input('Kilometers Driven')
 fuel = st.selectbox('Fuel Type', ['Petrol', 'Diesel', 'CNG'])
