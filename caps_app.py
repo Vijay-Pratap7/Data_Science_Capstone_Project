@@ -24,7 +24,7 @@ def preprocess_input(df, year, km_driven, owner, fuel, seller_type, transmission
     return data_encoded
     X_columns = model.named_steps['preprocessor'].transformers_[0][2] + \
                 model.named_steps['preprocessor'].transformers_[1][1].get_feature_names_out().tolist()
-    data = data.reindex(columns=X_columns, fill_value=0)
+    data = data_encoded.reindex(columns=X_columns, fill_value=0)
     return data
 # Define the Streamlit app
 def main():
