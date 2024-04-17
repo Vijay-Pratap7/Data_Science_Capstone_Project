@@ -29,10 +29,10 @@ def main():
     owner = st.sidebar.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner', 'Fourth & Above Owner'])
 
     # Encode categorical variables
-    fuel_encoded = encoder.transform([fuel])[0]
-    seller_type_encoded = encoder.transform([seller_type])[0]
-    transmission_encoded = encoder.transform([transmission])[0]
-    owner_encoded = encoder.transform([owner])[0]
+    fuel_encoded = model.transform([fuel])[0]
+    seller_type_encoded = model.transform([seller_type])[0]
+    transmission_encoded = model.transform([transmission])[0]
+    owner_encoded = model.transform([owner])[0]
 
     # Prepare car details as a dictionary
     car_details = {
