@@ -33,7 +33,6 @@ def preprocess_input(data):
     encoder = LabelEncoder()
     input_df = input_df.apply(encoder.fit_transform)
     input_df = input_df.reindex(columns=X.columns, fill_value=0)
-
     return input_df
 
 # Function to predict car price
@@ -49,7 +48,7 @@ st.title('Car Price Prediction')
 
 # Input form for car details
 st.header('Enter Car Details')
-car_name = st.selectbox('Car Name', name)
+car_name = st.selectbox('car_model', car_model)
 year = st.number_input('Year', min_value=1900, max_value=2023)
 km_driven = st.number_input('Kilometers Driven')
 fuel = st.selectbox('Fuel Type', ['Petrol', 'Diesel', 'CNG'])
