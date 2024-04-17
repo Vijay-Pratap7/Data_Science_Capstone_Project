@@ -18,7 +18,7 @@ def main():
         name = df["name"].str.split(" ", expand=True)
         df["car_maker"] = name[0]
         df["car_model"] = name[1]
-        df.drop(["name"], axis=1, inplace=True)
+        df.drop(["name"], axis=1)
         df = pd.get_dummies(df, drop_first=True)
 
         # Encoding target variable
