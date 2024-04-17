@@ -15,7 +15,7 @@ def main():
 
         # Feature engineering
         df["car_age"] = 2023 - df["year"]
-        name = df["Car_Name"].str.split(" ", expand=True)
+        name = df["name"].str.split(" ", expand=True)
         df["car_maker"] = name[0]
         df["car_model"] = name[1]
         df.drop(["Car_Name"], axis=1, inplace=True)
