@@ -35,8 +35,8 @@ def main():
 
         # User input fields
         name = st.selectbox("Select Car Name", options=df["name"].unique())
-        year = st.number_input("Year of manufacture", min_value=1900, max_value=2023, value=2010)
-        km_driven = st.number_input("Kilometers driven", min_value=0, value=50000)
+        year = st.number_input("Year of manufacture", min_value=1980, max_value=2023, value=2010)
+        km_driven = st.number_input("Kilometers driven", min_value=0, value=50000, step=500)
         owner = st.selectbox("Owner type", ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner"])
         fuel = st.selectbox("Fuel type", ["Petrol", "Diesel", "CNG", "LPG", "Electric"])
         seller_type = st.selectbox("Seller type", ["Individual", "Dealer", "Trustmark Dealer"])
