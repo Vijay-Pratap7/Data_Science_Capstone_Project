@@ -45,27 +45,28 @@ st.title('Car Price Prediction')
 
 # Input form for car details
 st.header('Enter Car Details')
+car_name = st.selectbox('Car Name', car_names)
 year = st.number_input('Year', min_value=1900, max_value=2023)
 km_driven = st.number_input('Kilometers Driven')
 fuel = st.selectbox('Fuel Type', ['Petrol', 'Diesel', 'CNG'])
 seller_type = st.selectbox('Seller Type', ['Dealer', 'Individual'])
 transmission = st.selectbox('Transmission', ['Manual', 'Automatic'])
 owner = st.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner or More'])
-car_maker = st.text_input('Car Maker')
-car_model = st.text_input('Car Model')
+
 
 # When predict button is clicked
 if st.button('Predict'):
     # Create a dictionary with the input data
     input_data = {
+        'car_maker': car_maker,
+        'car_model': car_model,
         'year': year,
         'km_driven': km_driven,
         'fuel': fuel,
         'seller_type': seller_type,
         'transmission': transmission,
-        'owner': owner,
-        'car_maker': car_maker,
-        'car_model': car_model
+        'owner': owner
+        
     }
     # Convert dictionary to DataFrame
     input_df = pd.DataFrame([input_data])
