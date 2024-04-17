@@ -13,13 +13,6 @@ def main():
         df = pd.read_csv(data)
         st.dataframe(df.head())
 
-        # Feature engineering
-        df["car_age"] = 2023 - df["year"]
-        name = df["name"].str.split(" ", expand=True)
-        df["car_maker"] = name[0]
-        df["car_model"] = name[1]
-        df = pd.get_dummies(df, drop_first=True)
-
         # Encoding target variable
         encoder = LabelEncoder()
         df["selling_price_encoded"] = encoder.fit_transform(df["selling_price"])
