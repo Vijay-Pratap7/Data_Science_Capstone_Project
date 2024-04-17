@@ -26,7 +26,7 @@ def main():
         df["selling_price_encoded"] = encoder.fit_transform(df["selling_price"])
 
         # UI for user input
-        car_name_options = df["Car_Name"].unique()
+        car_name_options = df["name"].unique()
         car_name = st.selectbox("Select Car Name", options=car_name_options)
         split = car_name.split(" ")
         car_maker = split[0]
