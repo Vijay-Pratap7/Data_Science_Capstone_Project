@@ -1,5 +1,5 @@
-NumPy version: 1.26.4
-Pandas version: 2.1.4
-Matplotlib version: 3.8.0
-Seaborn version: 0.12.2
-Scikit-learn version: 1.2.2
+numpy==1.26.4
+pandas==2.1.4
+matplotlib==3.8.0
+seaborn==0.12.2
+scikit-learn==1.2.2
