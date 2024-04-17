@@ -1,78 +1,37 @@
 import streamlit as st
-import pickle
 import pandas as pd
+import pickle
 
 # Load the saved trained ML model
 with open('rfmodel.pkl', 'rb') as file:
-    model = pickle.load(file)
+    best_model = pickle.load(file)
 
-# Function to preprocess input data
-def preprocess_input(data):
-    # File upload
-    data = st.file_uploader("Upload a Dataset", type=["csv"])
-
-    if data is not None:
-        df = pd.read_csv(data)
-        st.dataframe(df.head())
-
-    # Calculate car age
-    input_df["car_age"] = 2023 - input_df["year"]
-
-    # Extract car maker and model from 'name' column
-    name = input_df["name"].str.split(" ", expand=True)
-    input_df["car_maker"] = name[0]
-    input_df["car_model"] = name[1]
-
-    # Drop unnecessary columns
-    input_df.drop(["name"], axis=1, inplace=True)
-
-    # One-hot encode categorical variables
-    input_df = pd.get_dummies(input_df, drop_first=True)
-
-    # Encode categorical columns
-    encoder = LabelEncoder()
-    input_df = input_df.apply(encoder.fit_transform)
-    input_df = input_df.reindex(columns=X.columns, fill_value=0)
-    return input_df
+# Load the dataset
+df = pd.read_csv("CAR DETAILS.csv")
 
 # Function to predict car price
-def predict_price(car_data):
-    # Preprocess input data
-    car_data = preprocess_input(car_data)
-    # Predict the price using the loaded model
-    predicted_price = model.predict(car_data)
-    return predicted_price
+def predict_price(model, input_data):
+    return model.predict(input_data)
 
-# Streamlit UI
-st.title('Car Price Prediction')
+# Streamlit app
+def main():
+    st.title("Car Price Prediction App")
 
-# Input form for car details
-st.header('Enter Car Details')
-year = st.number_input('Year', min_value=1900, max_value=2023)
-km_driven = st.number_input('Kilometers Driven')
-fuel = st.selectbox('Fuel Type', ['Petrol', 'Diesel', 'CNG'])
-seller_type = st.selectbox('Seller Type', ['Dealer', 'Individual'])
-transmission = st.selectbox('Transmission', ['Manual', 'Automatic'])
-owner = st.selectbox('Owner', ['First Owner', 'Second Owner', 'Third Owner or More'])
+    # Dropdown to select car name
+    selected_car = st.selectbox("Select Car Name", df["name"])
 
+    # Display selected car details
+    selected_car_details = df[df["name"] == selected_car].iloc[0]
+    st.write("Selected Car Details:")
+    st.write(selected_car_details)
 
-# When predict button is clicked
-if st.button('Predict'):
-    # Create a dictionary with the input data
-    input_data = {
-        'car_maker': car_maker,
-        'car_model': car_model,
-        'year': year,
-        'km_driven': km_driven,
-        'fuel': fuel,
-        'seller_type': seller_type,
-        'transmission': transmission,
-        'owner': owner
-        
-    }
-    # Convert dictionary to DataFrame
-    input_df = pd.DataFrame([input_data])
-    # Predict the price
-    predicted_price = predict_price(input_df)
-    # Display the predicted price
-    st.success(f'Predicted Selling Price: Rs. {predicted_price[0]:,.2f}')
+    # Prepare input data for prediction
+    input_data = selected_car_details.drop(["name", "selling_price"]).to_numpy().reshape(1, -1)
+
+    # Predict car price
+    if st.button("Predict Price"):
+        predicted_price = predict_price(best_model, input_data)
+        st.success(f"Predicted Selling Price: {predicted_price[0]}")
+
+if __name__ == "__main__":
+    main()
