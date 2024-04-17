@@ -9,9 +9,9 @@ with open('rfmodel.pkl', 'rb') as file:
     
 data = st.file_uploader("Upload a Dataset", type = ["csv"])
 
-    if data is not None:
-      df = pd.read_csv(data)
-      st.dataframe(df.head())
+if data is not None:
+df = pd.read_csv(data)
+st.dataframe(df.head())
 # Define a function to preprocess user input
 def preprocess_input(year, km_driven, owner, fuel, seller_type, transmission, name):
     name = df["name"].str.split(" ", expand = True)
