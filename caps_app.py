@@ -2,53 +2,49 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import pickle
-from sklearn.preprocessing import LabelEncoder
 
-# Load the trained Random Forest model
+# Load the trained model
 with open('rfmodel.pkl', 'rb') as file:
-    model = pickle.load(file)
+    rf_model = pickle.load(file)
 
-@st.cache_data
-def preprocess_input(df, year, km_driven, owner, fuel, seller_type, transmission, name):
-    name_split = name.split(" ")
-    car_maker = name_split[0]
-    car_model = name_split[1]
+# Function to predict car price
+def predict_price(car_age, km_driven, fuel, seller_type, transmission, owner, car_maker):
+    # Prepare input features
+    fuel_diesel = 1 if fuel == 'Diesel' else 0
+    fuel_petrol = 1 if fuel == 'Petrol' else 0
+    seller_type_individual = 1 if seller_type == 'Individual' else 0
+    seller_type_dealer = 1 if seller_type == 'Dealer' else 0
+    transmission_manual = 1 if transmission == 'Manual' else 0
+    owner_first = 1 if owner == 'First Owner' else 0
+    owner_second = 1 if owner == 'Second Owner' else 0
+    car_maker_encoded = [0, 0, 0, 0]  # Assuming 4 car makers for one-hot encoding
+    if car_maker in ['Maruti', 'Hyundai', 'Datsun', 'Honda']:
+        car_maker_encoded = [1 if maker == car_maker else 0 for maker in ['Maruti', 'Hyundai', 'Datsun', 'Honda']]
+
+    # Make prediction
+    input_data = np.array([[car_age, km_driven, fuel_diesel, fuel_petrol, seller_type_individual,
+                            seller_type_dealer, transmission_manual, owner_first, owner_second] + car_maker_encoded])
     
-    df["car_age"] = 2023 - df["year"]
-    df.drop(["name"], axis=1, inplace=True)
-    
-    # One-hot encode categorical variables
-    data = pd.get_dummies(df, drop_first=True, columns=df.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
-    encoder = LabelEncoder()
-    data_encoded = data.apply(encoder.fit_transform)
-    return data_encoded
-    
-# Define the Streamlit app
+    prediction = rf_model.predict(input_data)
+    return prediction[0]
+
+# Streamlit app
 def main():
     st.title("Car Price Prediction")
 
-    # Load the dataset
-    data = st.file_uploader("Upload a Dataset", type=["csv"])
-    if data is not None:
-        df = pd.read_csv(data)
-        st.dataframe(df.head())
+    # Input features
+    car_age = st.slider("Car Age", 0, 20, 5)
+    km_driven = st.number_input("Kilometers Driven", min_value=0, max_value=500000, value=10000)
+    fuel = st.selectbox("Fuel Type", ['Petrol', 'Diesel'])
+    seller_type = st.selectbox("Seller Type", ['Individual', 'Dealer'])
+    transmission = st.selectbox("Transmission", ['Manual', 'Automatic'])
+    owner = st.selectbox("Owner", ['First Owner', 'Second Owner'])
+    car_maker = st.selectbox("Car Maker", ['Maruti', 'Hyundai', 'Datsun', 'Honda'])
 
-        # User input fields
-        name = st.selectbox("Select Car Name", options=df["name"].unique())
-        year = st.number_input("Year of manufacture", min_value=1980, max_value=2023, value=2010)
-        km_driven = st.number_input("Kilometers driven", min_value=0, value=50000, step=500)
-        owner = st.selectbox("Owner type", ["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner"])
-        fuel = st.selectbox("Fuel type", ["Petrol", "Diesel", "CNG", "LPG", "Electric"])
-        seller_type = st.selectbox("Seller type", ["Individual", "Dealer", "Trustmark Dealer"])
-        transmission = st.selectbox("Transmission type", ["Manual", "Automatic"])
+    # Predict price
+    if st.button("Predict"):
+        price = predict_price(car_age, km_driven, fuel, seller_type, transmission, owner, car_maker)
+        st.success(f"The estimated selling price of the car is ₹ {price:,.2f}")
 
-        # Preprocess user input
-        input_data = preprocess_input(df, year, km_driven, owner, fuel, seller_type, transmission, name)
-
-        # Predict car price
-        if st.button("Predict"):
-            prediction = model.predict(input_data)
-            st.success(f"The estimated price of the car is {prediction[0]:,.2f} INR")
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()
