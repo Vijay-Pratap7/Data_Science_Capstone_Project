@@ -64,7 +64,10 @@ def main():
         "transmission": transmission,
         "owner": owner
     }
-    
+
+    # Convert the dictionary into a DataFrame
+    input_df = pd.DataFrame(input_data)
+
     # Predict car price when "Predict" button is clicked
     if st.button('Predict'):
         # Call the predict_price function
