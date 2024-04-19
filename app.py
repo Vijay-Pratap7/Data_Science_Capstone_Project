@@ -10,7 +10,7 @@ def main():
     df = pd.read_csv("CAR DETAILS.csv")
     
     # Function to load the trained model
-    @st.cache(allow_output_mutation=True)
+    @st.cache_data(allow_output_mutation=True)
     def load_model():
         with open("rfmodel.pkl", "rb") as file:
             model = pickle.load(file)
