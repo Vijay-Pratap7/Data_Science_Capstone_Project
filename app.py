@@ -41,6 +41,7 @@ def main():
       if st.button('Predict', key = "int"):
         input_data = {"car_maker": [car_maker],
                     "car_model": [car_model],
+                    "year": [year],
                     "car_age":[car_age],
                     'km_driven': [km_driven],
                     'fuel': [fuel],
