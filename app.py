@@ -19,10 +19,10 @@ def main():
       car_model = split[1]
       df.drop(["name"], axis=1, inplace=True)
 
-      years = st.selectbox("Select year of model", options=range(1980, 2024))
+      year = st.selectbox("Select year of model", options=range(1980, 2024))
 
       current_year = 2023
-      car_age = current_year-years
+      car_age = current_year-year
 
       km_driven = st.slider('Select km driven Length', 0.0, 300000.0, step = 1000.0)
 
