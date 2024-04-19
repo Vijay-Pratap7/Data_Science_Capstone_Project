@@ -34,7 +34,7 @@ def main():
 
       owner = st.selectbox("Select owner type", options=["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"])
 
-      test  = [[ name, years, km_driven, fuel, seller_type, transmission, owner]]
+      test  = [[ name, year, km_driven, fuel, seller_type, transmission, owner]]
       st.write('Test_Data', test)
 
 
