@@ -37,17 +37,17 @@ def main():
       test  = [[ name, year, km_driven, fuel, seller_type, transmission, owner]]
       st.write('Test_Data', test)
 
-
+year  km_driven  fuel  seller_type  transmission  owner  car_maker car_model car_age
       if st.button('Predict', key = "int"):
-        input_data = {"car_maker": [car_maker],
-                    "car_model": [car_model],
-                    "year": [year],
-                    "car_age":[car_age],
-                    'km_driven': [km_driven],
-                    'fuel': [fuel],
-                    'seller_type': [seller_type],
-                    'transmission': [transmission],
-                    'owner': [owner]}
+        input_data = {'year': [year],
+                      'km_driven': [km_driven],
+                      'fuel': [fuel],
+                      'seller_type': [seller_type],
+                      'transmission': [transmission],
+                      'owner': [owner]
+                      'car_maker': [car_maker],
+                      'car_model': [car_model],
+                      'car_age':[car_age]}
 
         input_df = pd.DataFrame(input_data)
         encoder = LabelEncoder()
