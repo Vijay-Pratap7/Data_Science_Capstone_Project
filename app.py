@@ -27,9 +27,9 @@ def main():
         car_age = current_year-years
 
         encoder = LabelEncoder()
-        for column in input_data.columns:
-            if input_data[column].dtype == 'object':  # Encode only object type columns
-                input_data[column] = encoder.fit_transform(input_data[column])
+        for column in input_data.keys():
+            if isinstance(input_data[column][0], str):  # Encode only string type columns
+                input_df[column] = encoder.fit_transform(input_df[column])
        
     # One-hot encode categorical variables
         pd.get_dummies(input_data, drop_first=True, columns=input_data.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
