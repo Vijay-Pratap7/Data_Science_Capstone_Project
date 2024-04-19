@@ -1,76 +1,77 @@
+import sklearn
 import streamlit as st
-import pandas as pd
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import pickle
+import pandas as pd
 
 def main():
     st.header("Car Price Prediction")
-    
-   # Load the dataset containing car details
-    df = pd.read_csv("CAR DETAILS.csv")
-    
-    # Function to load the trained model
-    @st.cache_data
-    def load_model():
-        with open("rfmodel.pkl", "rb") as file:
-            model = pickle.load(file)
-        return model
-    
+    data = st.file_uploader("Upload a Dataset", type = ["csv"])
 
-        #encoder = LabelEncoder()
-        # Encode categorical columns in input_df
-        #categorical_cols = input_df.select_dtypes(include=['object']).columns
-       # for col in categorical_cols:
-          #  input_df[col] = label_encoder.fit_transform(input_df[col])
-       
+    if data is not None:
+      df = pd.read_csv(data)
+      st.dataframe(df.head())
+
+      name = st.selectbox("Select Car Name", options = df["name"].unique())
+      st.write(name)
+      split = name.split(" ")
+      car_maker = split[0]
+      car_model = split[1]
+
+
+      years = st.selectbox("Select year of model", options=range(1980, 2024))
+
+      current_year = 2023
+      car_age = current_year-years
+
+      km_driven = st.slider('Select km driven Length', 0.0, 300000.0, step = 1000.0)
+
+      fuel = st.selectbox("Select fuel type", options=["Diesel", "Petrol", "CNG", "LPG", "Electric"])
+
+      seller_type = st.selectbox("Select seller type", options=["Individual", "Dealer", "Trustmark Dealer"])
+
+      transmission = st.selectbox("Select transmission type", options=["Manual", "Automatic"])
+
+      owner = st.selectbox("Select owner type", options=["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"])
+
+      test  = [[ name, years, km_driven, fuel, seller_type, transmission, owner]]
+      st.write('Test_Data', test)
+
+
+      if st.button('Predict', key = "int"):
+        input_data = {"car_maker": [car_maker],
+                    "car_model": [car_model],
+                    "car_age":[car_age],
+                    'km_driven': [km_driven],
+                    'fuel': [fuel],
+                    'seller_type': [seller_type],
+                    'transmission': [transmission],
+                    'owner': [owner]}
+
+        input_df = pd.DataFrame(input_data)
+        encoder = LabelEncoder()
+        df1 = input_df.apply(encoder.fit_transform)
+
     # One-hot encode categorical variables
-       # pd.get_dummies(input_data, drop_first=True, columns=input_data.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
-       # return processed_data
-    
-    # Function to make predictions
-    def predict_price(model, input_data):
-        # Preprocess input data
-        processed_data = preprocess_input(input_data)
-        # Make predictions
-        prediction = model.predict(processed_data)
-        return prediction
-    
-    # Load the model
-    model = load_model()
-    
-    # User input for car details
-    name = st.selectbox("Select Car Name", options=df["name"].unique())
-    split = name.split(" ")
-    car_maker = split[0]
-    car_model = split[1]
-    years = st.selectbox("Select year of model", options=range(1980, 2024))
-    current_year = 2023
-    car_age = current_year-years
-    km_driven = st.slider('Select km driven', 0.0, 300000.0, step=1000.0)
-    fuel = st.selectbox("Select fuel type", options=["Diesel", "Petrol", "CNG", "LPG", "Electric"])
-    seller_type = st.selectbox("Select seller type", options=["Individual", "Dealer", "Trustmark Dealer"])
-    transmission = st.selectbox("Select transmission type", options=["Manual", "Automatic"])
-    owner = st.selectbox("Select owner type", options=["First Owner", "Second Owner", "Third Owner", "Fourth & Above Owner", "Test Drive Car"])
-    
-    input_data = {
-        "name": name,
-        "year": years,
-        "km_driven": km_driven,
-        "fuel": fuel,
-        "seller_type": seller_type,
-        "transmission": transmission,
-        "owner": owner
-    }
+        final_data = pd.get_dummies(df1, drop_first=True, columns=df1.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
 
-    # Convert the dictionary into a DataFrame
-    input_df = pd.DataFrame(input_data)
+        # Update the file path to reflect the correct location in the Streamlit cloud
+        pkl_file_path = "rfmodel.pkl"
 
-    # Predict car price when "Predict" button is clicked
-    if st.button('Predict'):
-        # Call the predict_price function
-        predicted_price = predict_price(model, input_data)
-        # Display the predicted price
-        st.success(f"Predicted Car Price: {predicted_price}")
+        # Load the pickle file
+        with open(pkl_file_path, "rb") as file:
+          model = pickle.load(file)
+
+
+        predictions = model.predict(final_data)
+        
+        if predictions<0:
+            st.success("There were inaccuracies in the details entered by you.")
+        else:
+            st.success(round(predictions[0]))
+
+        st.success(predictions[0])
+
 
 if __name__ == "__main__":
     main()
