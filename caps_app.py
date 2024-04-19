@@ -18,8 +18,10 @@ def preprocess_input(df, year, km_driven, owner, fuel, seller_type, transmission
     df.drop(["name"], axis=1, inplace=True)
 
     encoder = LabelEncoder()
-    df1 = df.apply(encoder.fit_transform)
-    return df1
+    encoded_columns = ['fuel', 'seller_type', 'transmission', 'owner']
+    for i in encoded_columns:
+        input_data[i] = encoder.fit_transform(input_data[i])
+       
     # One-hot encode categorical variables
     data = pd.get_dummies(df1, drop_first=True, columns=df1.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
     
