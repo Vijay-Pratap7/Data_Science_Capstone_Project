@@ -66,7 +66,7 @@ def main():
                     'transmission': [transmission],
                     'owner': [owner]}
 
-        input_df = pd.DataFrame(final_data)
+        input_df = pd.DataFrame(input_data)
         data_preprocess()
         # Update the file path to reflect the correct location in the Streamlit cloud
         pkl_file_path = "rfmodel.pkl"
@@ -76,7 +76,7 @@ def main():
           model = pickle.load(file)
 
 
-        predictions = model.predict(input_df)
+        predictions = model.predict(final_data)
         
         if predictions<0:
             st.success("There were inaccuracies in the details entered by you.")
