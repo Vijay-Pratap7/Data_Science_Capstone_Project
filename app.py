@@ -16,25 +16,16 @@ def main():
             model = pickle.load(file)
         return model
     
-    # Function to preprocess input data
-    def preprocess_input(input_data):
-        # Your preprocessing steps here, including encoding categorical variables
-        split = name.split(" ")
-        car_maker = split[0]
-        car_model = split[1]
 
-        current_year = 2023
-        car_age = current_year-years
-
-        encoder = LabelEncoder()
+        #encoder = LabelEncoder()
         # Encode categorical columns in input_df
-        categorical_cols = input_df.select_dtypes(include=['object']).columns
-        for col in categorical_cols:
-            input_df[col] = label_encoder.fit_transform(input_df[col])
+        #categorical_cols = input_df.select_dtypes(include=['object']).columns
+       # for col in categorical_cols:
+          #  input_df[col] = label_encoder.fit_transform(input_df[col])
        
     # One-hot encode categorical variables
-        pd.get_dummies(input_data, drop_first=True, columns=input_data.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
-        return processed_data
+       # pd.get_dummies(input_data, drop_first=True, columns=input_data.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
+       # return processed_data
     
     # Function to make predictions
     def predict_price(model, input_data):
@@ -49,7 +40,12 @@ def main():
     
     # User input for car details
     name = st.selectbox("Select Car Name", options=df["name"].unique())
+    split = name.split(" ")
+    car_maker = split[0]
+    car_model = split[1]
     years = st.selectbox("Select year of model", options=range(1980, 2024))
+    current_year = 2023
+    car_age = current_year-years
     km_driven = st.slider('Select km driven', 0.0, 300000.0, step=1000.0)
     fuel = st.selectbox("Select fuel type", options=["Diesel", "Petrol", "CNG", "LPG", "Electric"])
     seller_type = st.selectbox("Select seller type", options=["Individual", "Dealer", "Trustmark Dealer"])
