@@ -1,8 +1,6 @@
 import sklearn
 import streamlit as st
-import scipy
-import scipy.stats
-import itertools
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import pickle
 
 # Importing Libraries for EDA
