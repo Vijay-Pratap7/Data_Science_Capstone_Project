@@ -80,7 +80,7 @@ def main():
         else:
             st.success(round(predictions[0]))
 
-      #  st.success(predictions[0])
+        st.success(predictions[0])
 
 
 if __name__ == "__main__":
