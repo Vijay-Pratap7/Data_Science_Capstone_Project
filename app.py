@@ -1,5 +1,6 @@
 import sklearn
 import streamlit as st
+import itertools
 from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import pickle
 
