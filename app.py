@@ -66,7 +66,7 @@ def main():
           model = pickle.load(file)
 
 
-        predictions = model.predict(final_data)
+        predictions = model.predict(input_df)
         
         if predictions<0:
             st.success("There were inaccuracies in the details entered by you.")
