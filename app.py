@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 
 def main():
-    st.header("ML Web App")
+    st.header("Car Price Prediction")
     data = st.file_uploader("Upload a Dataset", type = ["csv"])
 
     if data is not None:
@@ -63,14 +63,14 @@ def main():
         input_df = pd.DataFrame(input_data)
 
         # Update the file path to reflect the correct location in the Streamlit cloud
-        pkl_file_path = "pipeline-model.pkl"
+        pkl_file_path = "rfmodel.pkl"
 
         # Load the pickle file
         with open(pkl_file_path, "rb") as file:
-          pipeline = pickle.load(file)
+          model = pickle.load(file)
 
 
-        predictions = pipeline.predict(input_df)
+        predictions = model.predict(input_df)
         
         if predictions<0:
             st.success("There were inaccuracies in the details entered by you.")
