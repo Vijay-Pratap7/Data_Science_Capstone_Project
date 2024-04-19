@@ -43,7 +43,7 @@ def main():
                       'fuel': [fuel],
                       'seller_type': [seller_type],
                       'transmission': [transmission],
-                      'owner': [owner]
+                      'owner': [owner],
                       'car_maker': [car_maker],
                       'car_model': [car_model],
                       'car_age':[car_age]}
