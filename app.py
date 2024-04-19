@@ -9,6 +9,12 @@ import pickle
 import pandas as pd
 import numpy as np
 
+def data_preprocess():
+    encoder = LabelEncoder()
+    df1 = input_df.apply(encoder.fit_transform)
+    return df1
+    # One-hot encode categorical variables
+    final_data = pd.get_dummies(df1, drop_first=True, columns=df1.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
 def main():
     st.header("Car Price Prediction")
     data = st.file_uploader("Upload a Dataset", type = ["csv"])
@@ -60,8 +66,8 @@ def main():
                     'transmission': [transmission],
                     'owner': [owner]}
 
-        input_df = pd.DataFrame(input_data)
-
+        input_df = pd.DataFrame(final_data)
+        data_preprocess()
         # Update the file path to reflect the correct location in the Streamlit cloud
         pkl_file_path = "rfmodel.pkl"
 
