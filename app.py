@@ -4,7 +4,11 @@ import pickle
 
 def main():
     st.header("Car Price Prediction")
-    
+    data = st.file_uploader("Upload a Dataset", type = ["csv"])
+
+    if data is not None:
+      df = pd.read_csv(data)
+      st.dataframe(df.head())
     # Function to load the trained model
     @st.cache(allow_output_mutation=True)
     def load_model():
