@@ -50,10 +50,13 @@ def main():
 
         input_df = pd.DataFrame(input_data)
         encoder = LabelEncoder()
-        df1 = input_df.apply(encoder.fit_transform)
+        encoded_columns = ['fuel', 'seller_type', 'transmission', 'owner']
+
+        for i in encoded_columns:
+           input_df[i] = encoder.fit_transform(input_df[i])
 
     # One-hot encode categorical variables
-        final_data = pd.get_dummies(df1, drop_first=True, columns=df.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
+        input_df = pd.get_dummies(input_df, drop_first=True, columns = ["car_maker", "car_model"])
 
         # Update the file path to reflect the correct location in the Streamlit cloud
         pkl_file_path = "rfmodel.pkl"
