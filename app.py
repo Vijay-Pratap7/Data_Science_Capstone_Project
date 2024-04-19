@@ -53,7 +53,7 @@ def main():
         df1 = input_df.apply(encoder.fit_transform)
 
     # One-hot encode categorical variables
-        final_data = pd.get_dummies(df1, drop_first=True, columns=df1.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
+        final_data = pd.get_dummies(df1, drop_first=True, columns=df.columns.difference(['selling_price', 'km_driven', 'year','car_age']))
 
         # Update the file path to reflect the correct location in the Streamlit cloud
         pkl_file_path = "rfmodel.pkl"
