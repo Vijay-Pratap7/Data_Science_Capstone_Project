@@ -17,7 +17,7 @@ def main():
       split = name.split(" ")
       car_maker = split[0]
       car_model = split[1]
-
+      df.drop(["name"], axis=1, inplace=True)
 
       years = st.selectbox("Select year of model", options=range(1980, 2024))
 
