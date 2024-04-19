@@ -37,7 +37,6 @@ def main():
       test  = [[ name, year, km_driven, fuel, seller_type, transmission, owner]]
       st.write('Test_Data', test)
 
-year  km_driven  fuel  seller_type  transmission  owner  car_maker car_model car_age
       if st.button('Predict', key = "int"):
         input_data = {'year': [year],
                       'km_driven': [km_driven],
