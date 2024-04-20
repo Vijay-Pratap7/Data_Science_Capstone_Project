@@ -5,7 +5,7 @@ import pickle
 import pandas as pd
 
 def main():
-    st.header("Car Price Prediction")
+    st.header("Car Price Predictor")
     data = st.file_uploader("Upload a Dataset", type = ["csv"])
 
     if data is not None:
